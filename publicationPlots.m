@@ -1,8 +1,8 @@
 %%%%%%%%%%%%% Make plots for publication for PD-proj: beta part %%%%%%%%%%%
-[dirs, sub_info, lh_subs] = PD_proj_setup('rebound');
 addpath /home/mikkel/PD_motor/global_scripts
 addpath /home/mikkel/matlab/export_fig/
 addpath /home/mikkel/matlab/align_Ylabels/
+[dirs, sub_info, lh_subs] = PD_proj_setup('rebound');
 
 cd(dirs.megDir);
 dirs.export = '/home/mikkel/PD_motor/rebound/export/publication';
@@ -119,6 +119,45 @@ for ii = 1:length(conds)
 
 end
 disp('DONE');
+
+
+%% Extract beta traces an plot
+cd(dirs.export);
+timeDim = avgTFR.PD_beta1.time;
+
+cfg = [];
+cfg.avgoverchan = 'no';
+cfg.frequency = [12 25];
+cfg.avgoverfreq = 'yes';
+cfg.avgoverchan = 'yes';
+
+BdataPD1 = ft_selectdata(cfg, avgTFR.PD_beta1);
+BtracePD1 = squeeze(BdataPD1.powspctrm);
+BdataPD2 = ft_selectdata(cfg, avgTFR.PD_beta2);
+BtracePD2 = squeeze(BdataPD2.powspctrm);
+
+BdataCtrl1 = ft_selectdata(cfg,avgTFR.ctrl_beta1);
+BtraceCtrl1 = squeeze(BdataCtrl1.powspctrm);
+BdataCtrl2 = ft_selectdata(cfg,avgTFR.ctrl_beta2);
+BtraceCtrl2 = squeeze(BdataCtrl2.powspctrm);
+
+fig = figure('rend','painters','pos',[10 10 1000 600]);
+set(fig,'PaperPosition', [0 0 4 2], 'color','w');
+
+plot(timeDim,squeeze(BtracePD1),'b-','LineWidth',2); hold on
+plot(timeDim,squeeze(BtracePD2),'b--','LineWidth',2);
+plot(timeDim,squeeze(BtraceCtrl1),'r-','LineWidth',2);
+plot(timeDim,squeeze(BtraceCtrl2),'r--','LineWidth',2);
+axis([-.5, 2.5, -0.3, 0.2])
+line([0 0],[-0.3, 0.2],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
+xlabel('Time (s)','fontsize',12);
+ylabel('Relative change','fontsize',12)
+title('Beta-band spectral evolution','fontsize',16);
+set(gca, 'LineWidth', 2,'fontweight','bold');
+legend('PD OFF','PD ON','HC Session1','HC Session2','Location','SouthEast')
+legend BOXOFF
+export_fig('beta_evo.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
+% % close
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
