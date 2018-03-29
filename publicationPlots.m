@@ -1,8 +1,8 @@
 %%%%%%%%%%%%% Make plots for publication for PD-proj: beta part %%%%%%%%%%%
 addpath /home/mikkel/PD_motor/global_scripts
+[dirs, sub_info, lh_subs] = PD_proj_setup('rebound');
 addpath /home/mikkel/matlab/export_fig/
 addpath /home/mikkel/matlab/align_Ylabels/
-[dirs, sub_info, lh_subs] = PD_proj_setup('rebound');
 
 cd(dirs.megDir);
 dirs.export = '/home/mikkel/PD_motor/rebound/export/publication';
@@ -19,10 +19,13 @@ ctrl_subs = intersect(sub_info.ctrl,subs);
 
 %% ################ TFR FIGURE ##################
 %% load data
-% cd(dirs.output);
+cd(dirs.output);
 load([dirs.output,'/betaChan1bs.mat']);
 load([dirs.output,'/acc_ERP2.mat']);
 load([dirs.output,'/emg_raw.mat']);
+load([dirs.output,'/beta_stats.mat'])
+cd(dirs.export);
+
 disp('data loaded');
 
 %% Grand average
@@ -141,20 +144,26 @@ BtraceCtrl1 = squeeze(BdataCtrl1.powspctrm);
 BdataCtrl2 = ft_selectdata(cfg,avgTFR.ctrl_beta2);
 BtraceCtrl2 = squeeze(BdataCtrl2.powspctrm);
 
-fig = figure('rend','painters','pos',[10 10 1000 600]);
+% Get cluster
+clustStart = stat_beta1.time(find(sum(squeeze(stat_beta1.mask)), 1,'first'));
+clustEnd = stat_beta1.time(find(sum(squeeze(stat_beta1.mask)), 1,'last'));
+
+% make plot
+fig = figure('rend','painters','pos',[10 10 1000 600]); hold on
 set(fig,'PaperPosition', [0 0 4 2], 'color','w');
 
-plot(timeDim,squeeze(BtracePD1),'b-','LineWidth',2); hold on
-plot(timeDim,squeeze(BtracePD2),'b--','LineWidth',2);
-plot(timeDim,squeeze(BtraceCtrl1),'r-','LineWidth',2);
-plot(timeDim,squeeze(BtraceCtrl2),'r--','LineWidth',2);
+patch([clustStart clustEnd clustEnd clustStart],[-0.3 -0.3 0.2 0.2],[.1,.1,.1],'FaceAlpha',0.2,'EdgeColor','none')
+p1 = plot(timeDim,squeeze(BtracePD1),'b-','LineWidth',2);
+p2 = plot(timeDim,squeeze(BtracePD2),'b--','LineWidth',2);
+p3 = plot(timeDim,squeeze(BtraceCtrl1),'r-','LineWidth',2);
+p4 = plot(timeDim,squeeze(BtraceCtrl2),'r--','LineWidth',2);
 axis([-.5, 2.5, -0.3, 0.2])
 line([0 0],[-0.3, 0.2],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
 xlabel('Time (s)','fontsize',12);
 ylabel('Relative change','fontsize',12)
 title('Beta-band spectral evolution','fontsize',16);
 set(gca, 'LineWidth', 2,'fontweight','bold');
-legend('PD OFF','PD ON','HC Session1','HC Session2','Location','SouthEast')
+legend([p1,p2,p3,p4],{'PD OFF','PD ON','HC Session1','HC Session2'},'Location','SouthEast')
 legend BOXOFF
 export_fig('beta_evo.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
 % % close
@@ -175,7 +184,7 @@ load('all_hfreq_bs')
 load('stat_lowGamma_avg.mat');
 load('stat_hiGamma_avg');
 load('all_TFRlog.mat');
-lead('stat_theta_all.mat')
+load('stat_theta_all.mat')
 disp('done');
 
 %% Grand average
@@ -258,21 +267,102 @@ figure('rend','painters','pos',[10 10 800 600]);
 ft_multiplotER(cfg, avgLowGam.PD1,avgLowGam.PD2,avgLowGam.ctrl1,avgLowGam.ctrl2);
 legend('PD OFF','PD ON','Ctrl. Session1','Ctrl. Session2')
 
-export_fig(['sens_lowGamma.png'], '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
+% export_fig(['sens_lowGamma.png'], '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
 
 figure('rend','painters','pos',[10 10 800 600]);
 ft_multiplotER(cfg, avgHiGam.PD1,avgHiGam.PD2,avgHiGam.ctrl1,avgHiGam.ctrl2);
 legend('PD OFF','PD ON','Ctrl. Session1','Ctrl. Session2')
 
-export_fig(['sens_hiGamma.png'], '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
+% export_fig(['sens_hiGamma.png'], '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
 
 figure('rend','painters','pos',[10 10 800 600]);
 ft_multiplotER(cfg, avgTheta.PD1,avgTheta.PD2,avgTheta.ctrl1,avgTheta.ctrl2);
 legend('PD OFF','PD ON','Ctrl. Session1','Ctrl. Session2')
 
-export_fig(['sens_theta.png'], '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
+% export_fig(['sens_theta.png'], '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
 
+%% Representative single channels 
+% Low gamma
+cfg = [];
+cfg.channel         = 'MEG0632+0633';
+cfg.latency         = [-.5 2.5];
+cfg.avgoverfreq     = 'yes';
 
+temp = ft_selectdata(cfg, avgLowGam.PD1);
+LGtracePD1 = squeeze(temp.powspctrm);
+temp = ft_selectdata(cfg, avgLowGam.PD2);
+LGtracePD2 = squeeze(temp.powspctrm);
+temp = ft_selectdata(cfg, avgLowGam.ctrl1);
+LGtraceCtrlD1 = squeeze(temp.powspctrm);
+temp = ft_selectdata(cfg, avgLowGam.ctrl2);
+LGtracectrl2 = squeeze(temp.powspctrm);
+
+timeDim = temp.time;
+
+% Get cluster
+clustStart = stat_lowGamma_avg.time(find(sum(squeeze(stat_lowGamma_avg.mask)), 1,'first'));
+clustEnd = stat_lowGamma_avg.time(find(sum(squeeze(stat_lowGamma_avg.mask)), 1,'last'));
+
+% Make plot
+fig = figure('rend','painters','pos',[10 10 1000 600]); hold on
+set(fig,'PaperPosition', [0 0 4 2], 'color','w');
+
+patch([clustStart clustEnd clustEnd clustStart],[-0.1 -0.1 0.1 0.1],[.1,.1,.1],'FaceAlpha',0.2,'EdgeColor','none')
+h1 = plot(timeDim,LGtracePD1,'b-','LineWidth',2);
+h2 = plot(timeDim,LGtracePD2,'b--','LineWidth',2);
+h3 = plot(timeDim,LGtraceCtrlD1,'r-','LineWidth',2);
+h4 = plot(timeDim,LGtracectrl2,'r--','LineWidth',2);
+axis([-.5, 2.5, -0.1, 0.1])
+line([0 0],[-0.3, 0.2],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
+xlabel('Time (s)','fontsize',12);
+ylabel('Relative change','fontsize',12)
+title('Low gamma spectral evolution','fontsize',16);
+set(gca, 'LineWidth', 2,'fontweight','bold');
+legend([h1,h2,h3,h4], {'PD OFF','PD ON','HC Session1','HC Session2'},'Location','SouthEast')
+legend BOXOFF
+export_fig('lowGamma_evo.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
+% % close
+
+% Theta
+cfg = [];
+cfg.channel         = 'MEG1122+1123';
+cfg.latency         = [-.5 2.5];
+cfg.avgoverfreq     = 'yes';
+
+temp = ft_selectdata(cfg, avgTheta.PD1);
+THtracePD1 = squeeze(temp.powspctrm);
+temp = ft_selectdata(cfg, avgTheta.PD2);
+THtracePD2 = squeeze(temp.powspctrm);
+temp = ft_selectdata(cfg, avgTheta.ctrl1);
+THtraceCtrl1 = squeeze(temp.powspctrm);
+temp = ft_selectdata(cfg, avgTheta.ctrl2);
+THtracectrl2 = squeeze(temp.powspctrm);
+
+timeDim = temp.time;
+
+% Get cluster
+clustStart = stat_lowGamma_avg.time(find(sum(squeeze(stat_theta.mask)), 1,'first'));
+clustEnd = stat_lowGamma_avg.time(find(sum(squeeze(stat_theta.mask)), 1,'last'));
+
+% Make plot
+fig = figure('rend','painters','pos',[10 10 1000 600]); hold on
+set(fig,'PaperPosition', [0 0 4 2], 'color','w');
+
+patch([clustStart clustEnd clustEnd clustStart],[-0.1 -0.1 0.1 0.1],[.1,.1,.1],'FaceAlpha',0.2,'EdgeColor','none')
+h1 = plot(timeDim,THtracePD1,'b-','LineWidth',2);
+h2 = plot(timeDim,THtracePD2,'b--','LineWidth',2);
+h3 = plot(timeDim,THtraceCtrl1,'r-','LineWidth',2);
+h4 = plot(timeDim,THtracectrl2,'r--','LineWidth',2);
+axis([-.5, 2.5, -0.1, 0.1])
+line([0 0],[-0.3, 0.2],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
+xlabel('Time (s)','fontsize',12);
+ylabel('Relative change','fontsize',12)
+title('Theta spectral evolution','fontsize',16);
+set(gca, 'LineWidth', 2,'fontweight','bold');
+legend([h1,h2,h3,h4], {'PD OFF','PD ON','HC Session1','HC Session2'},'Location','SouthEast')
+legend BOXOFF
+export_fig('theta_evo.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
+% close
 
 %% Plot: Topo plots
 timestep = 0.5;		% timestep between time windows for each subplot (in seconds)
