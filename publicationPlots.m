@@ -445,37 +445,8 @@ export_fig(['Topo_hiGamma.png'], '-r500', '-p0.05', '-CMYK', '-png','-transparen
 export_fig(['Topo_hiGamma.pdf'], '-r500', '-p0.05', '-CMYK', '-pdf')
 
 %% DELETE
+% Below here not used...
 
-cfg = [];
-cfg.foilim  = betamu_band;
-
-avgBeta.PD1 = ft_freqgrandaverage(cfg, dataT_PD1_bs{:});
-avgBeta.PD2 = ft_freqgrandaverage(cfg, dataT_PD2_bs{:});
-avgBeta.ctrl1 = ft_freqgrandaverage(cfg, dataT_ctrl1_bs{:});
-avgBeta.ctrl2 = ft_freqgrandaverage(cfg, dataT_ctrl2_bs{:});
-
-% avgBeta.PD1.mask = stat_theta.mask;
-% avgBeta.PD2.mask = stat_theta.mask;
-% avgBeta.ctrl1.mask = stat_theta.mask;
-% avgBeta.ctrl2.mask = stat_theta.mask;
-
-disp('done')
-
-cfg = [];
-cfg.layout          = 'neuromag306cmb.lay';
-cfg.showlabels      = 'no';
-cfg.interactive     = 'yes';
-% cfg.showcomment     = 'no';
-% cfg.maskparameter   = 'mask';  % use the thresholded probability to mask the data
-% cfg.maskstyle       = 'box';
-% cfg.maskalpha       = .1;
-cfg.xlim            = [-.5 2.5];
-% cfg.ylim            = [-0.1 0.1];
-figure;
-ft_multiplotER(cfg, avgBeta.PD1,avgBeta.PD2,avgBeta.ctrl1,avgBeta.ctrl2);
-
-
-%% Below here not used...
 % Single subs PD 1
 subs = 1:length(PD_beta1bs);
 cfg = [];

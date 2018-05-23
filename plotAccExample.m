@@ -1,4 +1,6 @@
-%% Plot example of acceprometer
+%% Plot example of accelerometer
+addpath /home/mikkel/fieldtrip/fieldtrip
+ft_defaults
 addpath /home/mikkel/matlab/export_fig/
 dirs.export = '/home/mikkel/PD_motor/rebound/export/publication';
 
@@ -13,6 +15,7 @@ cfg.continuous      = 'yes';
 cfg.channel         = misc_chan(1:3);
 cfg.bpfilter        = 'yes';
 cfg.bpfreq          = [1 195];
+
 alldataACC = ft_preprocessing(cfg);
 
 temp_acc = alldataACC.trial{:};
