@@ -145,6 +145,58 @@ cfg.alpha               = .025;
 
 stat_betaIntraction = ft_freqstatistics(cfg, PD_betaDiffbs{:}, ctrl_betaDiffbs{:});
 
+%% Within group difference (i.e. not the interaction)
+% PD session 1 vs 2
+cfg = [];
+cfg.method              = 'montecarlo';
+cfg.neighbours          = [];
+cfg.channel             = 'peak_channel';
+
+cfg.design = [ones(1,length(PD_beta1bs)) 2*ones(1,length(PD_beta2bs))];
+cfg.design = [cfg.design; 1:length(PD_beta1bs) 1:length(PD_beta2bs)]';
+
+cfg.statistic           = 'ft_statfun_depsamplesT';
+cfg.correctm            = 'cluster';
+cfg.clustertail         = 0;
+cfg.clusteralpha        = 0.05;
+cfg.clusterstatistic = 'maxsum';
+
+cfg.numrandomization    = 1000;
+cfg.ivar                = 1;            % the 1st row in cfg.design contains the independent variable
+cfg.uvar                = 2;
+cfg.tail                = 0;
+cfg.computeprob         = 'yes';
+cfg.computecritval      = 'yes';
+cfg.alpha               = .025;
+
+stat_beta_PD = ft_freqstatistics(cfg, PD_beta1bs{:}, PD_beta2bs{:});
+disp('done');
+
+% Ctrl session 1 vs 2
+cfg = [];
+cfg.method              = 'montecarlo';
+cfg.neighbours          = [];
+cfg.channel             = 'peak_channel';
+
+cfg.design = [ones(1,length(ctrl_beta1bs)) 2*ones(1,length(ctrl_beta2bs))];
+cfg.design = [cfg.design; 1:length(ctrl_beta1bs) 1:length(ctrl_beta2bs)]';
+
+cfg.statistic           = 'ft_statfun_depsamplesT';
+cfg.correctm            = 'cluster';
+cfg.clustertail         = 0;
+cfg.clusteralpha        = 0.05;
+cfg.clusterstatistic = 'maxsum';
+
+cfg.numrandomization    = 1000;
+cfg.ivar                = 1;            % the 1st row in cfg.design contains the independent variable
+cfg.uvar                = 2;
+cfg.tail                = 0;
+cfg.computeprob         = 'yes';
+cfg.computecritval      = 'yes';
+cfg.alpha               = .025;
+
+stat_beta_ctrl = ft_freqstatistics(cfg, ctrl_beta1bs{:}, ctrl_beta2bs{:});
+
 %% Correlation with UPDRS score (PD only)
 
 % Scores from behavious assesment (manually entered here)
