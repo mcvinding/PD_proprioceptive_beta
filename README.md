@@ -1,6 +1,6 @@
 # PD_proprioceptive_beta
 
-Scripts for dataanalysis of beta-band induced responses measured by magnetoencephalography (MEG) during passive movements of the index finder in Parkison's patients and healthy controls.
+Scripts for dataanalysis of beta-band induced responses measured by magnetoencephalography (MEG) during passive movements of the index finder in Parkinson's patients and healthy controls.
 
 For more information, reference, and citation please see our pre-print:
 
