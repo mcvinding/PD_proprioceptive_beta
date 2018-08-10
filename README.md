@@ -1,4 +1,4 @@
-# PD_proprioceptive_beta
+# Attenuated beta rebound to proprioceptive afferent feedback in Parkinson’s disease
 
 Scripts for dataanalysis of beta-band induced responses measured by magnetoencephalography (MEG) during passive movements of the index finder in Parkinson's patients and healthy controls.
 
