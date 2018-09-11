@@ -59,14 +59,13 @@ end
 
 %% Make seperate plots per group x session
 conds = fieldnames(avgTFR);
-% ft_hastoolbox('brewermap', 1);         % ensure this toolbox is on the path
-% colormap(flipud(brewermap(64,'RdBu'))) 
+load(fullfile(dirs.scripts,'rbmap.mat'))
 
 cfg = [];
-cfg.zlim        = [-0.30 0.30];
+cfg.zlim        = [-0.45 0.45];
 cfg.xlim        = [-.5 2.5];
 cfg.colorbar    = 'no';
-cfg.colormap    = 'jet';
+% cfg.colormap    = 'jet';
 cfg.interactive = 'no';
 
 cfgTFR = cfg;
@@ -96,7 +95,7 @@ for ii = 1:length(conds)
     set(gca, 'LineWidth', 2);
 
     y1 = ylabel('Freq. (Hz)'); xlabel('Time (s)'); 
-%     colormap(flipud(brewermap(64,'RdBu'))) 
+    colormap(rbmap) 
 
     subplot(20,1,16:17); ft_singleplotER(cfgACC, accAvg.(conds{ii}));
     y2 = ylabel({'Acceleration';'(z-score)'},'fontsize',6);
@@ -117,8 +116,8 @@ for ii = 1:length(conds)
 %     print('-dpng','-r500',['TFR_',conds{ii},'.png'])
 %     print('-painters','-dpdf',['TFR_',conds{ii},'.pdf'])
 
-    export_fig(['TFR_',conds{ii},'exp.png'], '-r500', '-p0.05', '-CMYK')
-    export_fig(['TFR_',conds{ii},'exp.pdf'], '-r500', '-p0.05', '-CMYK', '-pdf')
+    export_fig(['TFR_',conds{ii},'exp2.png'], '-r500', '-p0.05', '-CMYK')
+    export_fig(['TFR_',conds{ii},'exp2.pdf'], '-r500', '-p0.05', '-CMYK', '-pdf')
 
 end
 disp('DONE');
