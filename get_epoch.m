@@ -47,7 +47,7 @@ for ii = 1:length(subs)
 
             trl_def = cfg.trl; %Save trl for later!
 
-            cfg.demean = 'no';         
+            cfg.demean = 'no';
             
             data = ft_preprocessing(cfg);
             

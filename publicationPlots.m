@@ -122,14 +122,13 @@ for ii = 1:length(conds)
 end
 disp('DONE');
 
-
-%% Extract beta traces an plot
+%% Extract beta traces and plot in single figure
 cd(dirs.export);
 timeDim = avgTFR.PD_beta1.time;
 
 cfg = [];
 cfg.avgoverchan = 'no';
-cfg.frequency = [12 25];
+cfg.frequency = [14 25];
 cfg.avgoverfreq = 'yes';
 cfg.avgoverchan = 'yes';
 
@@ -143,30 +142,62 @@ BtraceCtrl1 = squeeze(BdataCtrl1.powspctrm);
 BdataCtrl2 = ft_selectdata(cfg,avgTFR.ctrl_beta2);
 BtraceCtrl2 = squeeze(BdataCtrl2.powspctrm);
 
+% Get subject traces
+BtracePD1sub = cell(1,length(PD_beta1bs));
+BtracePD2sub = cell(1,length(PD_beta2bs));
+BtraceCtrl1sub = cell(1,length(ctrl_beta1bs));
+BtraceCtrl2sub = cell(1,length(ctrl_beta1bs));
+
+for ss = 1:length(PD_beta1bs)
+    temp = ft_selectdata(cfg,PD_beta1bs{ss});
+    BtracePD1sub{ss} = squeeze(temp.powspctrm);
+    temp = ft_selectdata(cfg,PD_beta2bs{ss});
+    BtracePD2sub{ss} = squeeze(temp.powspctrm);  
+end
+for ss = 1:length(ctrl_beta1bs)
+    temp = ft_selectdata(cfg,ctrl_beta1bs{ss});
+    BtraceCtrl1sub{ss} = squeeze(temp.powspctrm);
+    temp = ft_selectdata(cfg,ctrl_beta2bs{ss});
+    BtraceCtrl2sub{ss} = squeeze(temp.powspctrm);  
+end
+    
 % Get cluster
 clustStart = stat_beta1.time(find(sum(squeeze(stat_beta1.mask)), 1,'first'));
 clustEnd = stat_beta1.time(find(sum(squeeze(stat_beta1.mask)), 1,'last'));
 
 % make plot
-fig = figure('rend','painters','pos',[10 10 1000 600]); hold on
+fig = figure('rend','painters','pos',[10 10 1000 800]); hold on
 set(fig,'PaperPosition', [0 0 4 2], 'color','w');
 
-patch([clustStart clustEnd clustEnd clustStart],[-0.3 -0.3 0.2 0.2],[.1,.1,.1],'FaceAlpha',0.2,'EdgeColor','none')
-p1 = plot(timeDim,squeeze(BtracePD1),'b-','LineWidth',2);
-p2 = plot(timeDim,squeeze(BtracePD2),'b--','LineWidth',2);
-p3 = plot(timeDim,squeeze(BtraceCtrl1),'r-','LineWidth',2);
-p4 = plot(timeDim,squeeze(BtraceCtrl2),'r--','LineWidth',2);
-axis([-.5, 2.5, -0.3, 0.2])
-line([0 0],[-0.3, 0.2],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
-xlabel('Time (s)','fontsize',12);
-ylabel('Relative change','fontsize',12)
+patch([clustStart clustEnd clustEnd clustStart],[-0.6 -0.6 0.4 0.4],[.1,.1,.1],'FaceAlpha',0.15,'EdgeColor','none')
+for ss = 1:length(BtraceCtrl1sub)
+    ps1 = plot(timeDim,BtraceCtrl1sub{ss},'r-','LineWidth',2);
+    ps1.Color(4) = 0.25;
+    ps2 = plot(timeDim,BtraceCtrl2sub{ss},'r--','LineWidth',2);
+    ps2.Color(4) = 0.25;
+end
+for ss = 1:length(BtracePD1sub)
+    ps1 = plot(timeDim,BtracePD1sub{ss},'b-','LineWidth',2);
+    ps1.Color(4) = 0.25;
+    ps2 = plot(timeDim,BtracePD2sub{ss},'b--','LineWidth',2);
+    ps2.Color(4) = 0.25;
+end
+p1 = plot(timeDim,squeeze(BtracePD1),'b-','LineWidth',4);
+p2 = plot(timeDim,squeeze(BtracePD2),'b:','LineWidth',4);
+p3 = plot(timeDim,squeeze(BtraceCtrl1),'r-','LineWidth',4);
+p4 = plot(timeDim,squeeze(BtraceCtrl2),'r:','LineWidth',4);
+axis([-.5, 2.5, -0.6, 0.4])
+line([0 0],[-0.6, 0.4],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
+xlabel('Time (s)','fontsize',16);
+ylabel('Relative change','fontsize',16)
 title('Beta-band spectral evolution','fontsize',16);
-set(gca, 'LineWidth', 2,'fontweight','bold');
+set(gca, 'LineWidth', 2,'fontweight','bold','fontsize',14);
 legend([p1,p2,p3,p4],{'PD OFF','PD ON','HC Session1','HC Session2'},'Location','SouthEast')
 legend BOXOFF
+
+% Save
 export_fig('beta_evo.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
 % % close
-
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Define bands
@@ -467,7 +498,7 @@ print(['/home/mikkel/PD_motor/rebound/export/TFR_PD1_subs.png'], '-dpng')
 % Single subs PD 2
 figure;
 for ss = 1:length(subs)
-    subplot(4,3,ss); ft_singleplotTFR(cfg,PD_beta1bs{ss});
+    subplot(4,3,ss); ft_singleplotTFR(cfg,PD_beta2bs{ss});
     title(subs(ss))
 end
 savefig(['/home/mikkel/PD_motor/rebound/export/TFR_PD2_subs.fig']);
@@ -487,7 +518,7 @@ print(['/home/mikkel/PD_motor/rebound/export/TFR_ctrl1_subs.png'], '-dpng')
 % Single subs PD 2
 figure;
 for ss = 1:length(subs)
-    subplot(6,3,ss); ft_singleplotTFR(cfg,slct_data_ctrl2.(subs{ss}));
+    subplot(6,3,ss); ft_singleplotTFR(cfg,ctrl_beta2bs{ss});
     title(subs(ss))
 end
 savefig(['/home/mikkel/PD_motor/rebound/export/TFR_ctrl2_subs.fig']);
