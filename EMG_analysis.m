@@ -206,21 +206,6 @@ load([dirs.output,'/emg_raw.mat']);
 load([dirs.output,'/emg_freq.mat']);
 disp('done')
 
-%% Remove sub 0376 who have muscle movements
-% ctrl_emg1e = ctrl_emg1;
-% ctrl_emg2e = ctrl_emg2;
-% ctrl_emg1e{12} = [];
-% ctrl_emg2e{12} = [];
-% ctrl_emg1e = ctrl_emg1e(~cellfun('isempty',ctrl_emg1e));
-% ctrl_emg2e = ctrl_emg2e(~cellfun('isempty',ctrl_emg2e));
-% 
-% ctrl_emg1_freqE = ctrl_emg1_freq;
-% ctrl_emg2_freqE = ctrl_emg2_freq;
-% ctrl_emg1_freqE{12} = [];
-% ctrl_emg2_freqE{12} = [];
-% ctrl_emg1_freqE = ctrl_emg1_freqE(~cellfun('isempty',ctrl_emg1_freqE));
-% ctrl_emg2_freqE = ctrl_emg2_freqE(~cellfun('isempty',ctrl_emg2_freqE));
-
 %% Grand average
 PD1_avg = ft_timelockgrandaverage([],PD_emg1{:});
 ctrl1_avg = ft_timelockgrandaverage([],ctrl_emg1{:});
@@ -268,7 +253,7 @@ for i=1:length(ctrl_emg1_freq)
     plot(ctrl_emg1_freq{i}.freq,ctrl_emg1_freq{i}.powspctrm); hold on
 end; hold off
 
-%% Statistics
+%% Statistics: Group comparisons
 % PD1 vs Ctrl1
 cfg = [];
 cfg.method              = 'montecarlo';
@@ -336,24 +321,77 @@ save(fullfile(dirs.output,'EMG_stats.mat'), ...
     'emg_stat_1v1','emg_stat_1v1raw','-v7.3');
 disp('Done')
     
+% load(fullfile(dirs.output,'EMG_stats.mat'))
 
+%% Statistics: baseline vs. movement comparisons
+%% Select data
+PD1_emgBS = cell(1,length(PD_subs));
+PD1_emgMV = cell(1,length(PD_subs));
+PD2_emgMV = cell(1,length(PD_subs));
+PD2_emgBS = cell(1,length(PD_subs));
+ctrl1_emgBS = cell(1,length(ctrl_subs));
+ctrl1_emgMV = cell(1,length(ctrl_subs));
+ctrl2_emgMV = cell(1,length(ctrl_subs));
+ctrl2_emgBS = cell(1,length(ctrl_subs));
 
+cfgmv = [];
+cfgmv.latency = [0 .5];
+cfgbs = [];
+cfgbs.latency = [-0.5 0];
 
+for i = 1:length(PD_subs)
+    PD1_emgMV{i} = ft_selectdata(cfgmv, PD_emg1{i});
+    PD1_emgBS{i} = ft_selectdata(cfgbs, PD_emg1{i});
+    PD2_emgMV{i} = ft_selectdata(cfgmv, PD_emg2{i});
+    PD2_emgBS{i} = ft_selectdata(cfgbs, PD_emg2{i});
+    PD1_emgBS{i}.time = PD1_emgMV{i}.time;
+    PD2_emgBS{i}.time = PD2_emgMV{i}.time;
+end
+for i = 1:length(ctrl_subs)
+    ctrl1_emgMV{i} = ft_selectdata(cfgmv, ctrl_emg1{i});
+    ctrl1_emgBS{i} = ft_selectdata(cfgbs, ctrl_emg1{i});
+    ctrl2_emgMV{i} = ft_selectdata(cfgmv, ctrl_emg2{i});
+    ctrl2_emgBS{i} = ft_selectdata(cfgbs, ctrl_emg2{i});
+    ctrl1_emgBS{i}.time = ctrl1_emgMV{i}.time;
+    ctrl2_emgBS{i}.time = ctrl2_emgMV{i}.time;
+end
 
+%% Do statistics
 
+cfg = [];
+cfg.method              = 'montecarlo';
+cfg.neighbours          = [];
+cfg.channel             = 'EMG004';
 
+cfg.numrandomization    = 1000;
+cfg.tail                = 0;
+cfg.computeprob         = 'yes';
+cfg.computecritval      = 'yes';
+cfg.alpha               = .025;
 
+cfg.statistic           = 'ft_statfun_depsamplesT';
+cfg.correctm            = 'cluster';
+cfg.clustertail         = 0;
+cfg.clusteralpha        = 0.05;
+cfg.clusterstatistic    = 'maxsum';
 
+cfg.design  = [ones(1,length(PD1_emgMV)) 2*ones(1,length(PD1_emgBS))];
+cfg.design  = [cfg.design; [1:length(PD2_emgMV),1:length(PD1_emgBS)]];
+cfg.ivar    = 1;
+cfg.uvar    = 2;
 
+PD1_mvbs = ft_timelockstatistics(cfg, PD1_emgMV{:}, PD1_emgBS{:});
+PD2_mvbs = ft_timelockstatistics(cfg, PD2_emgMV{:}, PD2_emgBS{:});
 
+cfg.design  = [ones(1,length(ctrl1_emgMV)) 2*ones(1,length(ctrl1_emgBS))];
+cfg.design  = [cfg.design; [1:length(ctrl1_emgMV),1:length(ctrl2_emgBS)]];
 
+ctrl1_mvbs = ft_timelockstatistics(cfg, ctrl1_emgMV{:}, ctrl1_emgBS{:});
+ctrl2_mvbs = ft_timelockstatistics(cfg, ctrl2_emgMV{:}, ctrl2_emgBS{:});
 
-
-
-
-
-
-
-
-
-
+%% SAVE
+save(fullfile(dirs.output,'EMG_stats2.mat'), ...
+    'PD1_mvbs','PD2_mvbs', ...
+    'ctrl1_mvbs', 'ctrl2_mvbs', '-v7.3');
+disp('Done')
+    

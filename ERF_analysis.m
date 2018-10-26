@@ -60,11 +60,7 @@ for ii = 1:length(ctrl_subs)
     ERF_ctrl2{ii} = timelocked;
 end
 
-save([dirs.output,'/all_ERF.mat'],'ERF_ctrl1','ERF_ctrl2','ERF_PD1','ERF_PD2');
-disp('done')
-
 %% Grand Average
-
 cfg = [];
 cfg.keepindividual = 'no';
 
@@ -73,14 +69,22 @@ avgERF.PD2 = ft_timelockgrandaverage(cfg, ERF_PD2{:});
 avgERF.ctrl1 = ft_timelockgrandaverage(cfg, ERF_ctrl1{:});
 avgERF.ctrl2 = ft_timelockgrandaverage(cfg, ERF_ctrl2{:});
 
-% Save data
+%% Save data
+save([dirs.output,'/all_ERF.mat'],'ERF_ctrl1','ERF_ctrl2','ERF_PD1','ERF_PD2');
+disp('done')
 save([dirs.output,'/grandERF.mat'],'avgERF','-v7.3');
+disp('done')
+
+%% Load data 
+disp('Loading...')
+load([dirs.output,'/all_ERF.mat']);
+load([dirs.output,'/grandERF.mat']);
 disp('done')
 
 %% Plot grand avg.
 cfg = [];
 cfg.layout = 'neuromag306cmb.lay';
-cfg.xlim = [-.1 1];
+cfg.xlim = [-.1 2];
 ft_multiplotER(cfg,avgERF.PD1,avgERF.ctrl1,avgERF.PD2,avgERF.ctrl2);
 
 %% Plot individual

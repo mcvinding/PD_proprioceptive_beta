@@ -142,7 +142,6 @@ for ii = 1:length(ctrl_subs)
     cfg = [];
     cfg.channel = channam_ctrl{ii};
     cfg.frequency = betamu_band;
-%     cfg.latency = [-.5 2.5];
     
     ctrl_beta1{ii} = ft_selectdata(cfg, data_ctrl1log{ii});
     
@@ -169,7 +168,6 @@ for ii = 1:length(ctrl_subs)
     cfg = [];
     cfg.channel = channam_ctrl{ii};
     cfg.frequency = betamu_band;
-%     cfg.latency = [-.5 2.5];
     
     ctrl_beta2{ii} = ft_selectdata(cfg, data_ctrl2log{ii});
     
@@ -183,10 +181,6 @@ for ii = 1:length(ctrl_subs)
     ctrl_beta2bs{ii} = ft_freqbaseline(cfg, ctrl_beta2{ii});
     
 end
-
-% ctrl_betaAvg = ft_freqgrandaverage([],ctrl_beta1bs{:});
-% PD_betaAvg = ft_freqgrandaverage([],PD_beta1bs{:});
-
 
 save([dirs.output,'/betaChan1log.mat'],'ctrl_beta1','PD_beta1','ctrl_beta2','PD_beta2','-v7.3');
 disp('saved 1 of 5');
@@ -206,7 +200,7 @@ clear data* ctrl_beta* PD_beta*
 load([dirs.output,'/all_TFRlog.mat']);
 disp('done')
 
-%%
+%% Baseline correct
 data_PD1bs = cell(1,length(PD_subs));
 data_PD2bs = cell(1,length(PD_subs));
 data_ctrl1bs = cell(1,length(ctrl_subs));
@@ -311,7 +305,6 @@ for ii = 1:length(PD_subs)
     % Select channel
     cfg = [];
     cfg.channel = channam_PD{ii};
-%     cfg.frequency = betamu_band;
     
     PD_hfsingle1{ii} = ft_selectdata(cfg, data_PD1_hf_log{ii});
     
@@ -329,10 +322,6 @@ for ii = 1:length(PD_subs)
         data_PD1_hf_log{ii} = flip_sens_neuromag(data_PD1_hf_log{ii});
     end
     
-%     cfg = [];
-%     cfg.baseline        = [-inf -0.05];
-%     cfg.baselinetype    = 'absolute';
-%     cfg.parameter       = 'powspctrm';    
     data_PD1_hf_bs{ii} = ft_freqbaseline(cfg,data_PD1_hf_log{ii});
     
     % Session 2
@@ -349,7 +338,6 @@ for ii = 1:length(PD_subs)
     % Select channel
     cfg = [];
     cfg.channel = channam_PD{ii};
-%     cfg.frequency = betamu_band;
     
     PD_hfsingle2{ii} = ft_selectdata(cfg, data_PD2_hf_log{ii});
     
@@ -366,11 +354,7 @@ for ii = 1:length(PD_subs)
         disp('Flip')
         data_PD2_hf_log{ii} = flip_sens_neuromag(data_PD2_hf_log{ii});
     end
-    
-%     cfg = [];
-%     cfg.baseline        = [-inf -0.05];
-%     cfg.baselinetype    = 'absolute';
-%     cfg.parameter       = 'powspctrm';    
+       
     data_PD2_hf_bs{ii} = ft_freqbaseline(cfg,data_PD2_hf_log{ii});
 end
 
@@ -421,7 +405,6 @@ for ii = 1:length(ctrl_subs)
     % Select channel
     cfg = [];
     cfg.channel = channam_ctrl{ii};
-%     cfg.frequency = betamu_band;
     
     ctrl_hfsingle2{ii} = ft_selectdata(cfg, data_ctrl2_hf_log{ii});
     
@@ -460,7 +443,5 @@ disp('done');
 % 
 % save([dirs.output,'/avgTFR_hfreq.mat'],'avgTFR_hfreq','-v7.3');
 % disp('done');
-
-
 
 exit
