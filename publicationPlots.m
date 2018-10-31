@@ -209,6 +209,10 @@ for ss = 1:length(PD_beta1bs)
     axis([-.5, 2.5, -0.6, 0.4])
     line([0 0],[-0.6, 0.5],'color',[0.5 .5 .5],'LineStyle',':','LineWidth',2)
     line([-.5, 2.5],[0 0],'color',[0.5 .5 .5],'LineStyle',':','LineWidth',2)    
+    ps1 = plot(BdataPD1.time,BtracePD1,'k-','LineWidth',2);
+    ps1.Color(4) = 0.75;
+    ps2 = plot(BdataPD1.time,BtracePD2,'k:','LineWidth',2);
+    ps2.Color(4) = 0.75;
     plot(timeDim,BtracePD1sub{ss},'b-','LineWidth',2);
     plot(timeDim,BtracePD2sub{ss},'r-','LineWidth',2);
     if ismember(ss, 1:3:length(PD_beta1bs))
@@ -220,7 +224,7 @@ for ss = 1:length(PD_beta1bs)
     title(['PD ',num2str(ss)],'fontsize',12);
     set(gca, 'LineWidth', 2,'fontweight','bold');
 end
-export_fig('beta_evo_subPD.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
+export_fig('beta_evo_subPD2.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
 
 fig = figure('rend','painters','pos',[10 10 1000 1000]); hold on
 set(fig,'PaperPosition', [0 0 4 2], 'color','w');
@@ -229,6 +233,10 @@ for ss = 1:length(ctrl_beta1bs)
     axis([-.5, 2.5, -0.6, 0.4])
     line([0 0],[-0.6, 0.5],'color',[0.5 .5 .5],'LineStyle',':','LineWidth',2)
     line([-.5, 2.5],[0 0],'color',[0.5 .5 .5],'LineStyle',':','LineWidth',2)
+    ps1 = plot(BdataCtrl1.time,BtraceCtrl1,'k-','LineWidth',2);
+    ps1.Color(4) = 0.75;
+    ps2 = plot(BdataCtrl2.time,BtraceCtrl2,'k:','LineWidth',2);
+    ps2.Color(4) = 0.75;
     plot(timeDim,BtraceCtrl1sub{ss},'b-','LineWidth',2);
     plot(timeDim,BtraceCtrl2sub{ss},'r-','LineWidth',2);
     if ismember(ss, 1:4:length(ctrl_beta1bs))
@@ -240,7 +248,7 @@ for ss = 1:length(ctrl_beta1bs)
     title(['HC ',num2str(ss)],'fontsize',12);
     set(gca, 'LineWidth', 2,'fontweight','bold');
 end
-export_fig('beta_evo_subHC.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
+export_fig('beta_evo_subHC2.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Define bands
@@ -570,66 +578,42 @@ end
 savefig(['/home/mikkel/PD_motor/rebound/export/TFR_ctrl2_subs.fig']);
 print(['/home/mikkel/PD_motor/rebound/export/TFR_ctrl2_subs.png'], '-dpng')
 
-%% Single sub temporal-spectral evolution
-% timeDim = PD_beta1bs{ss}.time;
-% cfg = [];
-% cfg.frequency = [14 25];
-% cfg.avgoverfreq = 'yes';
-% cfg.avgoverchan = 'yes';
-% 
-% BtracePD1sub = cell(1,length(PD_beta1bs));
-% BtracePD2sub = cell(1,length(PD_beta2bs));
-% BtraceCtrl1sub = cell(1,length(ctrl_beta1bs));
-% BtraceCtrl2sub = cell(1,length(ctrl_beta2bs));
-% 
-% for ss = 1:length(PD_beta1bs)
-%     temp1 = ft_selectdata(cfg, PD_beta1bs{ss});
-%     BtracePD1sub{ss} = squeeze(temp1.powspctrm);
-%     temp2 = ft_selectdata(cfg, PD_beta2bs{ss});
-%     BtracePD2sub{ss} = squeeze(temp2.powspctrm);
-% end
-% for ss = 1:length(ctrl_beta1bs)
-%     temp1 = ft_selectdata(cfg,ctrl_beta1bs{ss});
-%     BtraceCtrl1sub{ss} = squeeze(temp1.powspctrm);
-%     temp2 = ft_selectdata(cfg,ctrl_beta2bs{ss});
-%     BtraceCtrl2sub{ss} = squeeze(temp2.powspctrm);
-% end
 
 %% Plot
-fig = figure('rend','painters','pos',[10 10 750 1000]); hold on
-set(fig,'PaperPosition', [0 0 4 2], 'color','w');
-for ss = 1:length(PD_beta1bs)
-    subplot(4,3,ss); hold on
-    h1 = plot(timeDim,BtracePD1sub{ss},'b-','LineWidth',2);
-    h2 = plot(timeDim,BtracePD2sub{ss},'r-','LineWidth',2);
-    axis([-.5, 2.5, -0.6, 0.5])
-    line([0 0],[-0.3, 0.2],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
-    xlabel('Time (s)','fontsize',8);
-%     ylabel('Relative change','fontsize',8)
-    title(['PD ',num2str(ss)],'fontsize',12);
-    set(gca, 'LineWidth', 2,'fontweight','bold');
-%     legend([h1,h2], {'OFF','ON'},'Location','SouthEast')
-%     legend BOXOFF
-end
-
-fig = figure('rend','painters','pos',[10 10 750 1500]); hold on
-set(fig,'PaperPosition', [0 0 4 2], 'color','w');
-for ss = 1:length(ctrl_beta1bs)
-    subplot(6,3,ss); hold on
-    h1 = plot(timeDim,BtraceCtrl1sub{ss},'b-','LineWidth',2);
-    h2 = plot(timeDim,BtraceCtrl2sub{ss},'r-','LineWidth',2);
-    axis([-.5, 2.5, -0.6, 0.5])
-    line([0 0],[-0.3, 0.2],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
-    xlabel('Time (s)','fontsize',12);
-%     ylabel('Relative change','fontsize',12)
-    title(['PD ',num2str(ss)],'fontsize',12);
-    set(gca, 'LineWidth', 2,'fontweight','bold');
-%     legend([h1,h2], {'OFF','ON'},'Location','SouthEast')
-%     legend BOXOFF
-end
-
-
-export_fig('sub_betaEvol.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
-% close
+% fig = figure('rend','painters','pos',[10 10 750 1000]); hold on
+% set(fig,'PaperPosition', [0 0 4 2], 'color','w');
+% for ss = 1:length(PD_beta1bs)
+%     subplot(4,3,ss); hold on
+%     h1 = plot(timeDim,BtracePD1sub{ss},'b-','LineWidth',2);
+%     h2 = plot(timeDim,BtracePD2sub{ss},'r-','LineWidth',2);
+%     axis([-.5, 2.5, -0.6, 0.5])
+%     line([0 0],[-0.3, 0.2],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
+%     xlabel('Time (s)','fontsize',8);
+% %     ylabel('Relative change','fontsize',8)
+%     title(['PD ',num2str(ss)],'fontsize',12);
+%     set(gca, 'LineWidth', 2,'fontweight','bold');
+% %     legend([h1,h2], {'OFF','ON'},'Location','SouthEast')
+% %     legend BOXOFF
+% end
+% 
+% fig = figure('rend','painters','pos',[10 10 750 1500]); hold on
+% set(fig,'PaperPosition', [0 0 4 2], 'color','w');
+% for ss = 1:length(ctrl_beta1bs)
+%     subplot(6,3,ss); hold on
+%     h1 = plot(timeDim,BtraceCtrl1sub{ss},'b-','LineWidth',2);
+%     h2 = plot(timeDim,BtraceCtrl2sub{ss},'r-','LineWidth',2);
+%     axis([-.5, 2.5, -0.6, 0.5])
+%     line([0 0],[-0.3, 0.2],'color',[0.5 .5 .5],'LineStyle','--','LineWidth',2)
+%     xlabel('Time (s)','fontsize',12);
+% %     ylabel('Relative change','fontsize',12)
+%     title(['PD ',num2str(ss)],'fontsize',12);
+%     set(gca, 'LineWidth', 2,'fontweight','bold');
+% %     legend([h1,h2], {'OFF','ON'},'Location','SouthEast')
+% %     legend BOXOFF
+% end
+% 
+% 
+% export_fig('sub_betaEvol.png', '-r500', '-p0.05', '-CMYK', '-png', '-transparent')
+% % close
 
 
